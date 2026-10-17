@@ -1,4 +1,4 @@
-# Realm of Mysteries - Jeu d'Aventure et de Quêtes en Python
+# Hazefairy-Cloud - Jeu d'Aventure et de Quêtes en Python
 
 Projet développé dans le cadre de la formation d'ingénieur à l'ESIEE Paris.
 
