@@ -6,7 +6,7 @@ Projet développé dans le cadre de la formation d'ingénieur à l'ESIEE Paris.
 
 ## Présentation du Projet
 
-Realm of Mysteries est un jeu d'aventure textuel et graphique fondé sur la programmation orientée objet. Le joueur incarne une princesse dans un royaume médiéval fantastique affecté par la malédiction d'un sorcier. L'objectif est d'explorer le monde, de résoudre des quêtes auprès de différents PNJ, de gérer son inventaire et de découvrir le secret du sorcier pour restaurer la paix.
+ Hazefairy-Cloud  est un jeu d'aventure textuel et graphique fondé sur la programmation orientée objet. Le joueur incarne une princesse dans un royaume médiéval fantastique affecté par la malédiction d'un sorcier. L'objectif est d'explorer le monde, de résoudre des quêtes auprès de différents PNJ, de gérer son inventaire et de découvrir le secret du sorcier pour restaurer la paix.
 
 Le projet propose une double interface d'utilisation :
 1. Interface Graphique (GUI Tkinter) : Affichage dynamique des décors, boutons d'action rapides et console intégrée.
