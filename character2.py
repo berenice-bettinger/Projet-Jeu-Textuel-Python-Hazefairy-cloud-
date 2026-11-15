@@ -2,6 +2,6 @@
 from character1 import Character
 
 class Character2(Character):
-    def move(self):
+    def move(self, player_room=None):
         # Un PNJ statique qui ne bouge pas
         return False

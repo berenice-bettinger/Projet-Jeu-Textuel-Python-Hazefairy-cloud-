@@ -19,6 +19,7 @@ from character1 import Character
 from character2 import Character2
 
 from item import Item
+import story
 import item
 import player
 from quests import Quest
@@ -515,6 +516,12 @@ class Actions:
             return False
 
         character = current_room.item[character_name]
+
+        # Scènes de l'histoire : la fée, le prince dragon et le duel contre Zeph
+        story_scenes = {"Willow": story.talk_fairy, "Cylian": story.talk_dragon, "Zeph": story.talk_zeph}
+        if character.name in story_scenes:
+            return story_scenes[character.name](game, character)
+
         message = character.get_msg()
         if not message:
             print(f"\n{character.name} n'a rien à dire pour le moment.\n")
@@ -572,14 +579,6 @@ class Actions:
                 game.player.quest_manager.complete_quest("La Clé des Ruines")
                 return True
 
-        # --- Quête : Le Secret du Sorcier --- (Zeph)
-        if character.name == "Zeph":
-            if not game.player.quest_manager.is_active("Le Secret du Sorcier"):
-                print("\nZeph vous regarde avec un sourire énigmatique...")
-                print("Zeph : Ainsi, tu as trouvé mon repaire. Mais connais-tu vraiment mon secret ?\n")
-                game.player.quest_manager.activate_quest("Le Secret du Sorcier")
-
-
         # --- Mini-quête : Parler à 5 PNJ ---
         if not hasattr(player, "talk_count"):
             player.talk_count = 0
@@ -595,57 +594,8 @@ class Actions:
             game.player.quest_manager.complete_objective("Parler à 5 PNJ", "Rencontrer les habitants")
 
 
-        # --- Conversation avec le sorcier Zeph ---
-        if character.name == "Zeph":
-            # Initialize conversation counter for Zeph if not exists
-            if not hasattr(player, "zeph_talk_count"):
-                player.zeph_talk_count = 0
-            
-            player.zeph_talk_count += 1
-            print(f"\nZeph vous regarde intensément (conversation {player.zeph_talk_count}/2)...\n")
-            
-            if player.zeph_talk_count == 1:
-                print("Zeph : Tu as montré beaucoup de détermination pour arriver jusqu'ici...")
-                print("Zeph : Un jour peut-être comprendras-tu mon vrai dessein.\n")
-            
-            elif player.zeph_talk_count == 2:
-                print("Zeph : Vous avez découvert son secret : il cherchait à protéger le royaume des vraies menaces !")
-                print("Le sorcier sourit énigmatiquement.\n")
-                
-                # Complete the sorcerer secret quest
-                game.player.quest_manager.complete_objective("Découvrir le secret de Zeph", "Le Secret du Sorcier")
-                
-                # Complete main quest objectives
-                game.player.quest_manager.complete_objective("Atteindre le repaire du sorcier", "Vaincre le Sorcier")
-                game.player.quest_manager.complete_objective("Vaincre le sorcier", "Vaincre le Sorcier")
-                
-                # Check if main quest is completed and end game
-                if game.player.quest_manager.is_completed("Vaincre le Sorcier"):
-                    print("\n 🎉 FÉLICITATIONS ! Vous avez compris le secret du sorcier et sauvé le royaume !")
-                    print("Vous êtes téléporté devant le château en héros...\n")
-                    
-                    # Find the Chateau room and teleport player there
-                    for room in game.rooms:
-                        if room.name == "Chateau":
-                            game.player.current_room = room
-                            break
-                    
-                    # Update the room image to show the Chateau BEFORE victory message
-                    if game.gui is not None:
-                        game.gui._update_room_image()
-                        game.gui.update()  # Force GUI to display the Chateau image
-                    
-                    print("\n===== VICTOIRE ! =====\n")
-                    
-                    # Freeze the GUI for 5 seconds AFTER displaying victory
-                    if game.gui is not None:
-                        game.gui.update()  # Force GUI update to show victory message
-                        time.sleep(5)  # Freeze for 5 seconds
-                    
-                    game.finished = True
+        return True
 
-            return True
-        
     def quests(game, list_of_words, number_of_parameters):
         """
         Show all quests and their status.

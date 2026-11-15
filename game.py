@@ -116,11 +116,11 @@ class Game:
         self.rooms.append(mer)
         montagne = Room("Montagne", "les montagnes du royaume.", image = "montagne.png")
         self.rooms.append(montagne)
-        cristaux = Room("Cristaux", "une grotte de cristal. Un dragon apparaît devant vous. Montez sur son dos !", image = "cristaux.png")
+        cristaux = Room("Lac des cristaux", "le lac des cristaux, une grotte où brille un lac souterrain. Une fée lumineuse et un grand dragon rouge vous observent.", image = "cristaux.png")
         self.rooms.append(cristaux)
-        ciel = Room("Ciel", "le ciel, à dos de dragon, en direction du repaire du sorcier !", image = "ciel.png")
+        ciel = Room("Ciel", "les nuages, sur le dos du prince dragon, en route vers le château de Zeph !", image = "ciel.png")
         self.rooms.append(ciel)
-        repere = Room("Repaire du sorcier", "le repaire du sorcier...", image = "repere.png")
+        repere = Room("Repaire du sorcier", "le château de Zeph, sombre repaire du sorcier...", image = "repere.png")
         self.rooms.append(repere)
         fontaine = Room("Fontaine", "une fontaine magique.", image = "fontaine.png")
         self.rooms.append(fontaine)
@@ -231,37 +231,41 @@ class Game:
         village.item[souvenir3.name] = souvenir3
 
         # Characters
-        garde = Character2("Garde", "un garde vigilant protégeant le château.", chateau, ["Bonjour votre majesté !", "Tout est en ordre dans le château."])
+        # Zones dans lesquelles certains PNJ circulent librement
+        zone_chateau = ['Chambre', 'Penderie', 'Couloir', 'Cuisine', 'Bibliothèque', 'Chateau']
+        zone_village = ['Village', "L'épicerie", 'Le jardin du jardinier', 'Maison du sage']
+        garde = Character("Garde", "un garde vigilant protégeant le château.", chateau, ["Bonjour votre majesté !", "Tout est en ordre dans le château."], zone=zone_chateau)
         chateau.item[garde.name] = garde
-        bibliothecaire = Character2("Bibliothécaire", "un vieux bibliothécaire avec une longue barbe blanche.", bibliotheque, ["Chut ! C'est une bibliothèque.", "Avez-vous besoin d'aide pour trouver un livre ?"])
+        bibliothecaire = Character("Bibliothécaire", "un vieux bibliothécaire avec une longue barbe blanche.", bibliotheque, ["Chut ! C'est une bibliothèque.", "Avez-vous besoin d'aide pour trouver un livre ?"], zone=zone_chateau)
         bibliotheque.item[bibliothecaire.name] = bibliothecaire
-        cuisinière= Character2 ("Cuisinière", "Une femme âgée qui cuisine dans la cuisine.", cuisine, ["Bonjour ! Que voulez-vous manger aujourd'hui ?", "J'ai préparé un délicieux repas pour vous."])
+        cuisinière = Character("Cuisinière", "une femme âgée qui prépare les repas du château.", cuisine, ["Bonjour ! Que voulez-vous manger aujourd'hui ?", "J'ai préparé un délicieux repas pour vous."], zone=zone_chateau)
         cuisine.item[cuisinière.name]= cuisinière
-        lutin = Character("Lutin", "un petit lutin espiègle avec un chapeau pointu.", foret, ["Bienvenue dans la forêt enchantée !", "Faites attention aux créatures magiques."])
+        lutin = Character("Lutin", "un petit lutin espiègle avec un chapeau pointu.", foret, ["Bienvenue dans la forêt enchantée !", "Faites attention aux créatures magiques."], zone=["Forêt enchantée", "Fontaine"])
         foret.item[lutin.name] = lutin
-        le_sage = Character("Le_sage", "un vieil homme sage avec une longue barbe grise.", Maison_du_sage, ["Vous avez fait un long voyage pour arriver ici.", "La sagesse est la clé de nombreux mystères."])
+        le_sage = Character("Le_sage", "un vieil homme sage avec une longue barbe grise.", Maison_du_sage, ["Vous avez fait un long voyage pour arriver ici.", "La sagesse est la clé de nombreux mystères."], zone=zone_village)
         Maison_du_sage.item[le_sage.name] = le_sage
-        Cylian = Character2("Cylian", "un grand dragon rouge avec des écailles étincelantes.", ciel, ["Rohouuuuu ! Je suis le gardien des airs.", "Monte sur mon dos pour un voyage inoubliable !"])
-        ciel.item[Cylian.name] = Cylian
+        # Le dragon est le prince Cylian, ensorcelé par Zeph : il attend au lac et suit la princesse quand elle lui parle
+        Cylian = Character("Cylian", "un grand dragon rouge aux écailles étincelantes, au regard étrangement doux.", cristaux, ["Rohouuuuu !"], zone=["Lac des cristaux"])
+        cristaux.item[Cylian.name] = Cylian
         Zeph = Character2("Zeph", "un sorcier mystérieux vêtu d'une robe sombre.", salle_de_rituel, ["Vous avez réussi à me trouver.", "Le véritable pouvoir réside en vous."])
         salle_de_rituel.item[Zeph.name] = Zeph
-        Willow = Character("Willow", "une petite fée lumineuse avec des ailes scintillantes.", cristaux, ["Bienvenue dans la grotte de cristal.", "La magie est partout autour de nous."])
+        Willow = Character2("Willow", "la fée du lac, lumineuse, aux ailes scintillantes.", cristaux, ["Bienvenue au lac des cristaux."])
         cristaux.item[Willow.name] = Willow
         pêcheur = Character2("Pêcheur", "un pêcheur robuste qui vend des bateaux.", pont, ["La mer est calme aujourd'hui.", "Vous voulez acheter un bateau ?"])
         pont.item[pêcheur.name] = pêcheur
-        Elra = Character2("Elra", "une jeune Herboriste.", village, ["Salut ! Je fournis toujours pleins de potion pour être prêt pour l'aventures.", "As-tu entendu parler des ruines anciennes ?"])
+        Elra = Character("Elra", "une jeune herboriste.", village, ["Salut ! J'ai toujours plein de potions pour être prête à l'aventure.", "As-tu entendu parler des ruines anciennes ?"], zone=zone_village)
         village.item[Elra.name] = Elra
-        Sully = Character("Sully", "un animal fantastique fidèle au joueur.", couloir, ["Je suis prêt pour l'aventure !", "N'oublie pas de me nourrir."])
+        Sully = Character("Sully", "le chien fidèle de la princesse, qui la suit partout.", couloir, ["Wouf ! Je suis prêt pour l'aventure !", "Wouf wouf ! N'oublie pas de me nourrir."], follow=True)
         couloir.item[Sully.name] = Sully
-        Villageois1 = Character2("Villageois1", "la piplette du village qui absorbe tout votre temps.", village, ["Bonjour ! Comment se passe votre journée ?", "Avez-vous entendu parler des rumeurs du village ?"])
+        Villageois1 = Character("Villageois1", "la piplette du village qui absorbe tout votre temps.", village, ["Bonjour ! Comment se passe votre journée ?", "Avez-vous entendu parler des rumeurs du village ?"], zone=zone_village)
         village.item[Villageois1.name] = Villageois1
-        Villageois2 = Character2("Villageois2", "L'historien du village, il vous raccontera des histoires.", village, ["Salut ! J'ai une histoire incroyable à te raconter.", "Le village est plein de mystères."])
+        Villageois2 = Character("Villageois2", "L'historien du village, il vous raccontera des histoires.", village, ["Salut ! J'ai une histoire incroyable à te raconter.", "Le village est plein de mystères."], zone=zone_village)
         village.item[Villageois2.name] = Villageois2
-        Villageois3 = Character2("Villageois3", "Le guide du village  qui aime aider les voyageurs.", village, ["Bonjour ! Comment puis-je vous aider aujourd'hui ?", "Le village est un endroit accueillant."])
+        Villageois3 = Character("Villageois3", "Le guide du village  qui aime aider les voyageurs.", village, ["Bonjour ! Comment puis-je vous aider aujourd'hui ?", "Le village est un endroit accueillant."], zone=zone_village)
         village.item[Villageois3.name] = Villageois3
-        Villageois4 = Character2("Villageois4", "une petite fille qui aime chanter des chansons.", village, ["Salut ! Voulez-vous entendre une chanson ?", "La musique est la langue universelle."])
+        Villageois4 = Character("Villageois4", "une petite fille qui aime chanter des chansons.", village, ["Salut ! Voulez-vous entendre une chanson ?", "La musique est la langue universelle."], zone=zone_village)
         village.item[Villageois4.name] = Villageois4
-        Villageois5 = Character2("Villageois5", "Le jardinier qui aime les plantes et la végetation.", village, ["Bonjour ! Avez-vous besoin de conseils sur le jardinage ?", "Les plantes sont mes amies."])
+        Villageois5 = Character("Villageois5", "Le jardinier qui aime les plantes et la végetation.", village, ["Bonjour ! Avez-vous besoin de conseils sur le jardinage ?", "Les plantes sont mes amies."], zone=zone_village)
         village.item[Villageois5.name] = Villageois5
         esprit = Character2("Esprit", "un esprit ancien qui hante les ruines.", ruines,["Pour ouvrir la porte sacrée, trouve les trois fragments perdus..."])
         ruines.item[esprit.name] = esprit
@@ -273,7 +277,7 @@ class Game:
         main_quest = Quest(
         title="Vaincre le Sorcier",
         description="Affrontez le sorcier maléfique et mettez fin à son règne.",
-        objectives=["Atteindre le repaire du sorcier", "Vaincre le sorcier"],
+        objectives=["Obtenir la baguette magique", "Retrouver le prince Cylian", "Atteindre le repaire du sorcier", "Vaincre le sorcier"],
         reward="Victoire du royaume"
         )
         self.player.quest_manager.add_quest(main_quest)
@@ -406,7 +410,7 @@ class Game:
 
     # Print the welcome message
     def print_welcome(self):
-        print(f"\nBienvenue {self.player.name} dans ce jeu d'aventure ! Vous êtes une princesse dans un royaume médiéval fantastique et un sorcier maléfique a jeté une malédiction sur votre royaume ! Parviendrez-vous à le vaincre et à restaurer la paix ?\n")
+        print(f"\nBienvenue {self.player.name} dans ce jeu d'aventure ! Vous êtes une princesse dans un royaume médiéval fantastique. Le sorcier Zeph a jeté une malédiction sur le royaume et le prince Cylian a disparu ! Parviendrez-vous à vaincre le sorcier et à retrouver votre prince ?\n")
         print("Entrez 'help' si vous avez besoin d'aide.")
 
         # Affiche la description courte de la pièce de départ (sans la liste d'objets).
@@ -445,8 +449,10 @@ class Game:
         player_room = self.player.current_room
         for npc in npcs:
             old_room = npc.current_room
-            if not npc.move():
+            if not npc.move(player_room):
                 continue
+            if npc.follow:
+                continue  # les compagnons suivent sans message à chaque pas
             if old_room is player_room:
                 print(f"{npc.name} quitte la pièce.")
             elif npc.current_room is player_room:

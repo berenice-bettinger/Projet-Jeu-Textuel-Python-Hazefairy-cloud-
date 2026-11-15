@@ -17,12 +17,13 @@ Projet de programmation orientée objet réalisé en binôme à l'ESIEE Paris.
 
 ## Le jeu
 
-Vous incarnez une princesse dans un royaume médiéval fantastique. Un sorcier a jeté une malédiction sur le royaume : il faut traverser **24 lieux**, parler aux habitants, réunir assez d'écus pour prendre la mer, puis rejoindre le repaire du sorcier à dos de dragon pour découvrir son secret.
+Vous incarnez une princesse dans un royaume médiéval fantastique. Le sorcier Zeph a jeté une malédiction sur le royaume et le prince Cylian a disparu. Il faut traverser **24 lieux**, réunir assez d'écus pour prendre la mer et atteindre le lac des cristaux. La fée Willow y révèle que le grand dragon rouge est en réalité le prince ensorcelé, et vous confie la baguette magique. Sur le dos du prince dragon, vous volez au-dessus des nuages jusqu'au château de Zeph pour un duel final. Victoire, retour au château… et mariage !
 
 - **24 lieux** illustrés, reliés par 6 directions (N, E, S, O, haut, bas)
 - **8 quêtes** (1 principale, 7 secondaires) avec objectifs, récompenses et monnaie (écus)
-- **17 personnages**, dont certains se déplacent seuls sur la carte
-- **Inventaire limité en poids** (3 kg) : il faut choisir ce qu'on emporte
+- **Un vrai duel final** contre Zeph : trois sortilèges à contrer en résolvant des casse-têtes (ordre des cristaux, suite de nombres, devinette), avec trois cœurs. Les suites et devinettes changent d'une partie à l'autre
+- **17 personnages** : les gens du château restent au château, les villageois, le sage et Elra restent côté village, et Sully, le chien de la princesse, la suit partout
+- **Inventaire limité en poids** (5 kg) : il faut choisir ce qu'on emporte
 - **Beamer** : un objet magique qui mémorise des lieux pour s'y téléporter
 - **Retour en arrière** (`back`) grâce à une sauvegarde de l'état du jeu à chaque déplacement
 - Une fin heureuse… et une façon de perdre : attention à la grotte !
@@ -84,13 +85,13 @@ flowchart TB
     Fontaine <-->|S / N| Pont
     Pont -->|U · 60 écus| Mer
     Mer -->|D| Montagne
-    Montagne -->|E| Cristaux["Grotte de cristal"]
-    Cristaux -->|U · dragon| Ciel
-    Ciel -->|D| Repaire["Repaire du sorcier"]
+    Montagne -->|E| Cristaux["Lac des cristaux · fée et dragon"]
+    Cristaux -->|U · sur le dos du dragon| Ciel["Nuages"]
+    Ciel -->|D| Repaire["Château de Zeph"]
     Repaire -->|S| CS["Couloir du sorcier"]
     CS <-->|E / O| BS["Bibliothèque du sorcier"]
     CS <-->|S / N| SS["Sous-sol du sorcier"]
-    CS -->|O| Rituel["🏆 Salle de rituel"]
+    CS -->|O| Rituel["⚔️ Salle de rituel · duel"]
 ```
 
 Les flèches simples sont des passages à sens unique. Deux chemins mènent à la montagne : le bateau (60 écus) ou la porte des ruines (clé des ruines).
@@ -99,7 +100,7 @@ Les flèches simples sont des passages à sens unique. Deux chemins mènent à l
 
 | Quête | Objectif | Récompense |
 |---|---|---|
-| **Vaincre le Sorcier** (principale) | Atteindre le repaire du sorcier et le vaincre | Victoire du royaume |
+| **Vaincre le Sorcier** (principale) | Obtenir la baguette magique, retrouver le prince Cylian, atteindre le château de Zeph et le vaincre en duel | Victoire du royaume |
 | Financer le voyage | Réunir 60 écus | Accès au bateau du pêcheur |
 | Le Secret du Sorcier | Découvrir le secret de Zeph | Connaissance ancestrale |
 | La Clé des Ruines | Trouver trois fragments anciens | Clé des ruines |
@@ -111,7 +112,9 @@ Les flèches simples sont des passages à sens unique. Deux chemins mènent à l
 <details>
 <summary>🗝️ Solution rapide (spoiler)</summary>
 
-`go D` → `go S` → `take beamer` → `go S` → `take plante_magique` → `go S` → `go S` → `talk Pêcheur` → `go U` → `go D` → `go E` → `go U` → `go D` → `go S` → `go O` → `talk Zeph` → `talk Zeph`
+`go D` → `go S` → `take beamer` → `go S` → `take plante_magique` → `go S` → `go S` → `talk Pêcheur` → `go U` → `go D` → `go E` → `talk Willow` → `talk Cylian` → `go U` → `go D` → `go S` → `go O` → `talk Zeph`
+
+Pendant le duel : touchez les cristaux dans l'ordre que donne la fée, trouvez le nombre manquant de la suite, puis répondez à la devinette. Chaque erreur coûte un cœur ; à zéro, Zeph vous rejette dans le couloir et vous pouvez retenter.
 
 </details>
 
@@ -154,6 +157,8 @@ classDiagram
     }
     class Character {
         msgs
+        zone
+        follow
         move()
         get_msg()
     }
@@ -167,12 +172,18 @@ classDiagram
     class Quest
     class Command
     class Actions
+    class Story {
+        talk_fairy()
+        talk_dragon()
+        talk_zeph() : duel
+    }
 
     GameGUI --> Game
     Game --> Player
     Game --> Room
     Game --> Command
     Command --> Actions
+    Actions --> Story
     Player --> QuestManager
     QuestManager --> Quest
     Room --> Item
@@ -189,13 +200,16 @@ classDiagram
 | `player.py` | Joueur : position, inventaire, poids, écus |
 | `room.py` | Lieux : sorties, objets, personnages, image |
 | `item.py` · `beamer.py` | Objets et beamer de téléportation |
-| `character1.py` · `character2.py` | Personnages mobiles et immobiles |
+| `character1.py` · `character2.py` | Personnages : zone de déplacement, compagnon qui suit le joueur, personnages immobiles |
+| `story.py` | La fée, le prince dragon, le duel en trois casse-têtes et la fin (retour au château et mariage) |
 | `quests.py` | Quêtes et gestionnaire de quêtes |
 | `assets/` | Illustrations des lieux et icônes des boutons |
 
 **Points techniques :**
 - **Patron Commande** : chaque commande est un objet `Command` qui pointe vers une fonction de `Actions`. Ajouter une commande ne touche pas à la boucle de jeu.
 - **Héritage** : `Beamer` hérite de `Item`, `Character2` hérite de `Character` et redéfinit `move()`.
+- **Personnages à zones** : chaque PNJ peut recevoir une liste de lieux autorisés (`zone`) ou suivre le joueur (`follow`), sans classe supplémentaire.
+- **Duel compatible avec les deux modes** : les questions passent par une boîte de dialogue Tkinter en mode graphique et par `input()` en console.
 - **Retour arrière** : l'état du joueur et des lieux est copié (`copy.deepcopy`) avant chaque déplacement, ce qui permet `back`.
 - **Interface graphique** : la sortie console (`sys.stdout`) est redirigée vers un widget Tkinter, ce qui permet de garder le même code de jeu pour les deux modes.
 
