@@ -105,10 +105,6 @@ class Player():
 
         # If the next room is None, print an error message and return False.
         if next_room is None:
-            try:
-                from game import DEBUG
-            except Exception:
-                DEBUG = False
             if DEBUG:
                 try:
                     print(f"DEBUG: move blocked (direction={direction})")
@@ -145,7 +141,8 @@ class Player():
             self.current_room = next_room
             self.move_count += 1
             
-            print(f"DEBUG: moved to {next_room.name}")
+            if DEBUG:
+                print(f"DEBUG: moved to {next_room.name}")
             try:
                 # Après un déplacement, n'affiche que la description courte (sans la liste d'objets).
                 print(self.current_room.get_short_description())

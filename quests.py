@@ -452,7 +452,7 @@ class QuestManager:
         elif quest.reward == "Connaissance ancestrale":
             print("Vous avez acquis une connaissance ancestrale précieuse !")
         elif quest.reward == "Accès au bateau":
-            print("Vous pouvez maintenant acheter un bateau chez le pêcheur ! Pour ce faire, \033[1mmontez\033[0m dans le bateau.")
+            print("Vous avez maintenant accès au bateau du pêcheur ! Pour embarquer, montez à bord avec la commande go U.")
         elif quest.reward == "Victoire du royaume":
             print("Le royaume est sauvé grâce à vous !")
 

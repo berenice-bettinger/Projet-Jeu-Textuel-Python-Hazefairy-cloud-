@@ -13,8 +13,11 @@ import copy
 from pathlib import Path
 import sys
 import time
-import tkinter as tk
-from tkinter import ttk, simpledialog
+try:
+    import tkinter as tk
+    from tkinter import ttk, simpledialog
+except ImportError:  # Tkinter absent (ex. certaines installations Linux) : mode console uniquement
+    tk = ttk = simpledialog = None
 
 
 # Toggle debugging messages across modules. Import this variable from other modules
@@ -99,13 +102,13 @@ class Game:
         self.rooms.append(bibliotheque)
         chateau = Room("Chateau", "la cour du château.", image = "chateau.png")
         self.rooms.append(chateau)
-        foret = Room("Forêt enchantée", "une forêt enchantée, peuplée d'animaux extraordianires.", image = "foret.png")
+        foret = Room("Forêt enchantée", "une forêt enchantée, peuplée d'animaux extraordinaires.", image = "foret.png")
         self.rooms.append(foret)
         village = Room("Village", "un village paisible.", image = "village.png")
         self.rooms.append(village)
         ruines = Room("Ruines", "les ruines d'un ancien temple.", image = "ruines.png")
         self.rooms.append(ruines)
-        pont = Room("Pont", "sur un ponton. Vous contemplez la mer à perte de vue.", image = "pont.png")
+        pont = Room("Pont", "un petit port, au bout d'un ponton face à la mer.", image = "pont.png")
         self.rooms.append(pont)
         grotte = Room("Grotte", "une grotte sombre et sinueuse.", image = "grotte.png")
         self.rooms.append(grotte)
@@ -115,17 +118,17 @@ class Game:
         self.rooms.append(montagne)
         cristaux = Room("Cristaux", "une grotte de cristal. Un dragon apparaît devant vous. Montez sur son dos !", image = "cristaux.png")
         self.rooms.append(cristaux)
-        ciel = Room("Ciel", "les airs ! Vous vous dirigez en direction du repère du sorcier à dos de dragon.", image = "ciel.png")
+        ciel = Room("Ciel", "le ciel, à dos de dragon, en direction du repaire du sorcier !", image = "ciel.png")
         self.rooms.append(ciel)
-        repere = Room("Repère du sorcier", "le repère du sorcier...", image = "repere.png")
+        repere = Room("Repaire du sorcier", "le repaire du sorcier...", image = "repere.png")
         self.rooms.append(repere)
         fontaine = Room("Fontaine", "une fontaine magique.", image = "fontaine.png")
         self.rooms.append(fontaine)
         Maison_du_sage = Room("Maison du sage", "la maison du sage.", image = "maison_du_sage.png")
         self.rooms.append(Maison_du_sage)
-        Le_jardin = Room("Le jardin du jardinier", "un jardin rempli de plante et de fruit et légumes.", image = "le_jardin.png")
+        Le_jardin = Room("Le jardin du jardinier", "un jardin rempli de plantes, de fruits et de légumes.", image = "le_jardin.png")
         self.rooms.append(Le_jardin)
-        L_épicerie = Room("L'épicerie", " Le lieux de travail d'Elra qui vend toute sorte d'herbe et potions.", image = "l_epicerie.png")
+        L_épicerie = Room("L'épicerie", "l'échoppe d'Elra, qui vend toutes sortes d'herbes et de potions.", image = "l_epicerie.png")
         self.rooms.append(L_épicerie)
         sous_sol_du_sorcier = Room("Sous-sol du sorcier", "le sous-sol du sorcier, rempli de potions et ingrédients mystérieux.", image = "sous_sol_du_sorcier.png")
         self.rooms.append(sous_sol_du_sorcier)
@@ -248,7 +251,7 @@ class Game:
         pont.item[pêcheur.name] = pêcheur
         Elra = Character2("Elra", "une jeune Herboriste.", village, ["Salut ! Je fournis toujours pleins de potion pour être prêt pour l'aventures.", "As-tu entendu parler des ruines anciennes ?"])
         village.item[Elra.name] = Elra
-        Sully = Character("Sully", "un animal fantastique fidèle au joueur.", chambre, ["Je suis prêt pour l'aventure !", "N'oublie pas de me nourrir."])
+        Sully = Character("Sully", "un animal fantastique fidèle au joueur.", couloir, ["Je suis prêt pour l'aventure !", "N'oublie pas de me nourrir."])
         couloir.item[Sully.name] = Sully
         Villageois1 = Character2("Villageois1", "la piplette du village qui absorbe tout votre temps.", village, ["Bonjour ! Comment se passe votre journée ?", "Avez-vous entendu parler des rumeurs du village ?"])
         village.item[Villageois1.name] = Villageois1
@@ -270,7 +273,7 @@ class Game:
         main_quest = Quest(
         title="Vaincre le Sorcier",
         description="Affrontez le sorcier maléfique et mettez fin à son règne.",
-        objectives=["Atteindre le repère du sorcier", "Vaincre le sorcier"],
+        objectives=["Atteindre le repaire du sorcier", "Vaincre le sorcier"],
         reward="Victoire du royaume"
         )
         self.player.quest_manager.add_quest(main_quest)
@@ -432,26 +435,22 @@ class Game:
         Si un PNJ part de / arrive dans la pièce du joueur, affiche
         un petit message pour que le joueur le remarque.
         """
+        # Liste unique des PNJ (Character2 hérite de Character mais ne bouge pas)
         npcs = []
         for room in self.rooms:
             for obj in list(room.item.values()):
-                # import local to avoid circular import issues
-                try:
-                    from character1 import Character 
-                    from character2 import Character2
-                except Exception:
-                    Character = None
-                    Character2 = None
-                if Character or Character2 and isinstance(obj, Character or Character2):
+                if isinstance(obj, Character) and obj not in npcs:
                     npcs.append(obj)
 
+        player_room = self.player.current_room
         for npc in npcs:
             old_room = npc.current_room
-            moved = False
-            try:
-                moved = npc.move()
-            except Exception:
-                moved = False
+            if not npc.move():
+                continue
+            if old_room is player_room:
+                print(f"{npc.name} quitte la pièce.")
+            elif npc.current_room is player_room:
+                print(f"{npc.name} arrive dans la pièce.")
 
  
 ##############################
@@ -475,7 +474,7 @@ class _StdoutRedirector:
         """Flush method required by sys.stdout interface (no-op for Text widget)."""
 
 
-class GameGUI(tk.Tk):
+class GameGUI(tk.Tk if tk is not None else object):
     """Tkinter GUI for the text-based adventure game.
 
     Layout layers:
@@ -489,7 +488,7 @@ class GameGUI(tk.Tk):
 
     def __init__(self):
         super().__init__()
-        self.title("TBA")
+        self.title("Hazefairy Cloud")
         self.geometry("900x700")  # Provide enough space
         self.minsize(900, 650)
 
@@ -733,6 +732,11 @@ def main():
     """
     args = sys.argv[1:]
     if '--cli' in args:
+        Game().play()
+        return
+
+    if tk is None:
+        print("Tkinter n'est pas installé : lancement en mode console.")
         Game().play()
         return
     

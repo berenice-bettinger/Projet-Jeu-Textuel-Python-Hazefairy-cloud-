@@ -1,6 +1,6 @@
 import random
 
-DEBUG = True 
+DEBUG = False
 
 
 class Character():

@@ -521,6 +521,10 @@ class Actions:
 
         # Quête : Financer le voyage (acheter un bateau)
         if character.name == "Pêcheur":
+            # Quête déjà terminée : le bateau est disponible
+            if game.player.quest_manager.is_completed("Financer le voyage"):
+                print("\nPêcheur : Le bateau t'attend, monte à bord (go U) !\n")
+                return True
             # Si la quête n'est pas encore active
             if not game.player.quest_manager.is_active("Financer le voyage"):
                 print("\nPêcheur : Si tu veux prendre la mer, cela va coûter 60 écus.")
@@ -612,7 +616,7 @@ class Actions:
                 game.player.quest_manager.complete_objective("Découvrir le secret de Zeph", "Le Secret du Sorcier")
                 
                 # Complete main quest objectives
-                game.player.quest_manager.complete_objective("Atteindre le repère du sorcier", "Vaincre le Sorcier")
+                game.player.quest_manager.complete_objective("Atteindre le repaire du sorcier", "Vaincre le Sorcier")
                 game.player.quest_manager.complete_objective("Vaincre le sorcier", "Vaincre le Sorcier")
                 
                 # Check if main quest is completed and end game
