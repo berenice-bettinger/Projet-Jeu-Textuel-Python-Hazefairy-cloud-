@@ -34,7 +34,7 @@ class Player():
     """
     
     # Define the constructor.
-    def __init__(self, name, max_weight=3.0):
+    def __init__(self, name, max_weight=5.0):
         self.name = name
         self.current_room = None
          # In-memory history of rooms visited (initially empty)
@@ -49,6 +49,8 @@ class Player():
         self.talk_count = 0
         self.hp = 100
         self.max_hp = 100
+        # Devient True quand le prince dragon accepte de vous porter
+        self.dragon_ally = False
 
     # Define the log_history method.
     def log_history(self):
@@ -105,10 +107,6 @@ class Player():
 
         # If the next room is None, print an error message and return False.
         if next_room is None:
-            try:
-                from game import DEBUG
-            except Exception:
-                DEBUG = False
             if DEBUG:
                 try:
                     print(f"DEBUG: move blocked (direction={direction})")
@@ -133,6 +131,12 @@ class Player():
                     print(f"\nVous n'avez pas assez d'écus pour le voyage ! Il vous en faut 60, vous en avez {self.money}.\n")
                     return False
             
+            # S'envoler depuis le lac des cristaux exige l'aide du prince dragon
+            if self.current_room.name == "Lac des cristaux" and next_room.name == "Ciel":
+                if not getattr(self, "dragon_ally", False):
+                    print("\nVous ne pouvez pas voler ! Parlez d'abord à la fée (talk Willow), puis au dragon (talk Cylian).\n")
+                    return False
+
             # Check if moving from Ruines to Montagne (requires "La Clé des Ruines" quest completion)
             if self.current_room.name == "Ruines" and next_room.name == "Montagne":
                 # Check if player has completed "La Clé des Ruines" quest
@@ -145,7 +149,8 @@ class Player():
             self.current_room = next_room
             self.move_count += 1
             
-            print(f"DEBUG: moved to {next_room.name}")
+            if DEBUG:
+                print(f"DEBUG: moved to {next_room.name}")
             try:
                 # Après un déplacement, n'affiche que la description courte (sans la liste d'objets).
                 print(self.current_room.get_short_description())

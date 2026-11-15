@@ -1,11 +1,15 @@
 import random
 
-DEBUG = True 
+DEBUG = False
 
 
 class Character():
-    def __init__(self, name, description, current_room, msgs):
+    def __init__(self, name, description, current_room, msgs, zone=None, follow=False):
         self.name = name
+        # zone : noms des pièces où le PNJ a le droit d'aller (None = partout)
+        self.zone = list(zone) if zone else None
+        # follow : le PNJ suit le joueur de pièce en pièce (ex. Sully)
+        self.follow = follow
         self.description = description
         self.current_room = current_room
         self.msgs = msgs
@@ -21,15 +25,22 @@ class Character():
     def __str__(self):
         return f"{self.name} : {self.description}"
 
-    def move(self):
+    def move(self, player_room=None):
         # Si pas de pièce connue, ne peut pas bouger
         if self.current_room is None:
             return False
+
+        # Un compagnon rejoint directement la pièce du joueur
+        if self.follow:
+            if player_room is None or player_room is self.current_room:
+                return False
+            return self._go_to(player_room)
         if DEBUG:
             print(f"[DEBUG] {self.name} tente de se déplacer depuis {self.current_room.name}")
 
-        # Rassemble les pièces adjacentes valides
-        adjacent = [r for r in self.current_room.exits.values() if r is not None]
+        # Rassemble les pièces adjacentes valides (en restant dans sa zone)
+        adjacent = [r for r in self.current_room.exits.values()
+                    if r is not None and (self.zone is None or r.name in self.zone)]
         if not adjacent:
             return False
 
@@ -38,7 +49,10 @@ class Character():
             return False
 
         # Choisit une pièce au hasard et effectue le déplacement
-        new_room = random.choice(adjacent)
+        return self._go_to(random.choice(adjacent))
+
+    def _go_to(self, new_room):
+        """Déplace le PNJ dans new_room (en le retirant de sa pièce actuelle)."""
 
         # Retirer de la pièce actuelle si présent
         try:
